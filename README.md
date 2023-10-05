@@ -1,3 +1,5 @@
-# Python simple_python_containerised_app
+# Youtube watch manager
 
- app
+ Scans my youtube subscriptions and prepares my watchlater playlist
+
+

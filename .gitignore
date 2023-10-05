@@ -1,3 +1,6 @@
 __pycache__
 not_in_git_combined_requirements.txt
 .idea
+/credentials.json
+/token.json
+/localdata/

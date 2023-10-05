@@ -1,0 +1,5 @@
+{
+    "google_credentials_file": "./credentials.json",
+    "temporary_token_file": "./token.json",
+    "local_saved_data_location": "./localdata"
+}

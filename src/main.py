@@ -1,7 +1,18 @@
+from appObj import appObj
 
 
-print("Start")
+# https://developers.google.com/youtube/v3/code_samples/code_snippets
+settings_file_name="./settings.json"
 
+global_account_data = None
+global_settings = None
 
-print("End")
-exit(0)
+if __name__ == '__main__':
+    appObj = appObj(settings_file_name=settings_file_name)
+
+    print("Start")
+
+    appObj.run()
+
+    print("End")
+    exit(0)
