@@ -3,7 +3,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-from .youtube import YoutubeApiHelpers
+from .youtube import YoutubeApiHelpers, DidNotFindChannelException as YoutubeApiHelpersDidNotFindChannelException
 
 SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly"

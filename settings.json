@@ -1,5 +1,6 @@
 {
     "google_credentials_file": "./credentials.json",
     "temporary_token_file": "./token.json",
-    "local_saved_data_location": "./localdata"
+    "local_saved_data_location": "./localdata",
+    "max_seen_pub_date": "2023-08-04T16:00:15Z"
 }
