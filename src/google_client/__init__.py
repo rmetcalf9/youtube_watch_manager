@@ -6,7 +6,7 @@ from google.auth.transport.requests import Request
 from .youtube import YoutubeApiHelpers, DidNotFindChannelException as YoutubeApiHelpersDidNotFindChannelException
 
 SCOPES = [
-    "https://www.googleapis.com/auth/youtube.readonly"
+    "https://www.googleapis.com/auth/youtube"
 ]
 
 class GoogleClient():

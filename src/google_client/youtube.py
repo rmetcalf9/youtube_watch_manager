@@ -1,6 +1,8 @@
 from dateutil.parser import parse
 from googleapiclient import errors
 
+#https://developers.google.com/youtube/v3/docs
+
 class DidNotFindChannelException(Exception):
     pass
 
@@ -97,7 +99,7 @@ class YoutubeApiHelpers():
         if len(channel_info)!=1:
             raise DidNotFindChannelException("Wrong number of results")
         upload_playlist_id = channel_info[0]["contentDetails"]["relatedPlaylists"]["uploads"]
-        print("PL ID=", upload_playlist_id)
+        # print("PL ID=", upload_playlist_id)
         playlist_items = self.get_playlistitems(
             playlist_id=upload_playlist_id,
             part=playlist_item_part,
@@ -142,4 +144,30 @@ class YoutubeApiHelpers():
             id=channel_id
         )
 
+    def get_my_playlists(self, part="snippet,contentDetails"):
+        return self._get_full_list(
+            fn=self.youtube_service.playlists,
+            part=part,
+            mine=True
+        )
 
+    def get_video_information(self, video_ids, part="contentDetails"):
+        return self._get_full_list(
+            fn=self.youtube_service.videos,
+            part=part,
+            mine=None,
+            id=",".join(video_ids)
+        )
+
+    def insert_video_into_playlist(self, video_id, playlist_id):
+        body = {
+            'snippet': {
+                'playlistId': playlist_id,
+                'resourceId': {
+                    'kind': 'youtube#video',
+                    'videoId': video_id
+                }
+            }
+        }
+        request = self.youtube_service.playlistItems().insert(part="snippet", body=body)
+        response=request.execute()

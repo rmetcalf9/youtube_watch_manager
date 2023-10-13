@@ -1,6 +1,22 @@
 {
-    "google_credentials_file": "./credentials.json",
-    "temporary_token_file": "./token.json",
-    "local_saved_data_location": "./localdata",
-    "max_seen_pub_date": "2023-08-04T16:00:15Z"
+  "google_credentials_file": "./credentials.json",
+  "temporary_token_file": "./token.json",
+  "channel_data_file": "./channel_data.json",
+  "default_max_seen_pub_date": "2023-09-04T16:00:15Z",
+  "max_seen_pub_date": "2023-08-04T16:00:15Z",
+  "playlists": {
+    "watch_later": {
+      "name": "Watch Later",
+      "id": "WL"
+    },
+    "long_watch_later": {
+      "name": "Long Watch Later",
+      "id": "PL2FfGrDTbEi_pVHVvBbpUpQ3tAkRWlXwj"
+    },
+    "watch_now": {
+      "name": "Watch Now",
+      "id": "PL2FfGrDTbEi9aDiWNHUgMKMd-TTYUmUb4"
+    }
+  },
+  "list_vid_from_channel_batch_size": 50
 }
