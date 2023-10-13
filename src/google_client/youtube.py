@@ -27,13 +27,24 @@ class YoutubeApiHelpers():
     def __init__(self, youtube_service):
         self.youtube_service = youtube_service
 
-    def _get_full_list(self, fn, part, mine=None, channel_id=None, id=None, playlist_id=None, min_content_details_vid_pub_date=None):
+    def _get_full_list(
+        self,
+        fn,
+        part,
+        mine=None,
+        channel_id=None,
+        id=None,
+        playlist_id=None,
+        min_content_details_vid_pub_date=None,
+        max_results=50
+    ):
         if min_content_details_vid_pub_date is not None:
             min_content_details_vid_pub_date_obj = parse(min_content_details_vid_pub_date)
         ret_val = []
         pageToken = None
         args = {
-            "part": part
+            "part": part,
+            "maxResults": max_results
         }
         if channel_id is not None:
             args["channelId"] = channel_id
