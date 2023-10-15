@@ -2,8 +2,7 @@
   "google_credentials_file": "./credentials.json",
   "temporary_token_file": "./token.json",
   "channel_data_file": "./channel_data.json",
-  "default_max_seen_pub_date": "2023-09-04T16:00:15Z",
-  "max_seen_pub_date": "2023-08-04T16:00:15Z",
+  "default_max_seen_pub_date": "2023-10-01T01:00:15Z",
   "playlists": {
     "watch_later": {
       "name": "Watch Later",

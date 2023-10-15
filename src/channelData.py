@@ -21,7 +21,7 @@ class ChannelData:
         with open(self.data_file_name, "w") as fileHandle:
             fileHandle.write(json.dumps(self.data,indent=2))
 
-    def get_data_for_channel(self, channel_name, channel_id):
+    def get_data_for_channel(self, channel_name, channel_id, save_changes=True):
         if channel_id not in self.data:
             self.data[channel_id] = {
                 "channel_id": channel_id,
@@ -30,7 +30,8 @@ class ChannelData:
                 "watch_policy": default_watch_policy
             }
             # Save the data on creation
-            self.save_changes(channel_id=channel_id)
+            if save_changes:
+                self.save_changes(channel_id=channel_id)
         return (
             self.data[channel_id]["last_run_last_pub_data"],
             get_watch_policy(self.data[channel_id]["watch_policy"])

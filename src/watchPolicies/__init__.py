@@ -28,6 +28,17 @@ class WatchPolictSaveLessThanHourToWatchLater(BaseWatchPolicy):
         else:
             self._add_to_context(policy_context, video_id, video_title, publish_date_object, "long_watch_later")
 
+class WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour(BaseWatchPolicy):
+    def __init__(self):
+        super().__init__(name="WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour")
+    def requires_duration(self):
+        return True
+    def assign_vid_to_playlist(self, video_id, video_title, publish_date_object, duration, policy_context):
+        if duration < ONE_HOUR_IN_SECONDS:
+            self._add_to_context(policy_context, video_id, video_title, publish_date_object, "watch_later")
+        else:
+            pass
+
 class SaveAllToWatchLater(BaseWatchPolicy):
     def __init__(self):
         super().__init__(name="SaveAllToWatchLater")
@@ -44,6 +55,7 @@ _watch_policies = []
 _watch_policies.append(WatchPolictSaveLessThanHourToWatchLater())
 _watch_policies.append(SaveAllToWatchLater())
 _watch_policies.append(SaveAllToWatchNow())
+_watch_policies.append(WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour())
 
 default_watch_policy="WatchPolicySaveLessThanHourToWatchLater"
 

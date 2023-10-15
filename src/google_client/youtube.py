@@ -89,15 +89,14 @@ class YoutubeApiHelpers():
     def get_channel_info(self, channel_id=None, mine=True, part="contentDetails"):
         if mine:
             if channel_id is not None:
-                raise Exception("Either choos My channel or supply an id - not both")
+                raise Exception("Either choose My channel or supply an id - not both")
         chan_info_resp = self._get_full_list(
             fn=self.youtube_service.channels,
             part=part,
             id=channel_id,
             mine=mine
         )
-        print("EE", chan_info_resp)
-        raise Exception("DD")
+        return chan_info_resp
 
     def get_video_uploads_for_channel(self, channel_id, min_content_details_vid_pub_date, playlist_item_part="contentDetails"):
         min_content_details_vid_pub_date_obj = parse(min_content_details_vid_pub_date)

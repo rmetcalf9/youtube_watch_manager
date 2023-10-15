@@ -27,7 +27,6 @@ class appObj():
 
         self._populate_playlist_ids()
 
-
     def get_video_durations(self, video_ids):
         ret_dat = {}
         video_batch_information = self.youtube_helper.get_video_information(
@@ -99,8 +98,18 @@ class appObj():
                 )
         self.channel_data.set_last_pub_data(channel_id, last_run_last_pub_date)
 
+    def ensure_subs_in_channel_data(self, subs):
+        for sub in subs:
+            (_, _) = self.channel_data.get_data_for_channel(
+                channel_name=sub['snippet']['title'],
+                channel_id=sub["snippet"]["resourceId"]["channelId"],
+                save_changes=False
+            )
+        self.channel_data.save_changes()
+
     def run(self):
         subs = self.youtube_helper.get_subscriptions()
+        self.ensure_subs_in_channel_data(subs=subs)
         for sub in subs:
             if sub["snippet"]["resourceId"]["kind"] != "youtube#channel":
                 raise Exception("NI - not a channel")
@@ -124,8 +133,8 @@ class appObj():
             print("Total vids added=", total_vids_added)
             self.channel_data.save_changes(channel_id=channel_id)
             #raise Exception("Stop after single subscription")
-            if total_vids_added>0:
-                raise Exception("Stop after single subscription that actually added vids")
+            #if total_vids_added>0:
+            #    raise Exception("Stop after single subscription that actually added vids")
 
     def reset_last_pub_dates(self):
         self.channel_data.reset_last_pub_dates()
@@ -143,21 +152,29 @@ class appObj():
         with open(self.settings_file_name, "w") as fileHandle:
             fileHandle.write(json.dumps(self.settings, indent=2))
 
-    def _populate_playlist_ids(self):
-        youtube_playlist_sanitized_name_map = {}
-        playlists = self.youtube_helper.get_my_playlists(part="snippet")
-        for playlist in playlists:
-            if playlist["kind"]=="youtube#playlist":
-                playlist_sanitized = playlist["snippet"]["title"].strip().lower()
-                youtube_playlist_sanitized_name_map[playlist_sanitized] = playlist["id"]
+    def _we_need_to_populate_some_ids(self):
         for playlist in self.settings["playlists"].keys():
             if not "id" in self.settings["playlists"][playlist]:
-                playlist_name_sanitized = self.settings["playlists"][playlist]["name"].strip().lower()
-                if playlist_name_sanitized not in youtube_playlist_sanitized_name_map:
-                    if playlist_name_sanitized=="Watch Later".strip().lower():
-                        self.settings["playlists"][playlist]["id"] = "WL"
+                return True
+        return False
+
+    def _populate_playlist_ids(self):
+        if self._we_need_to_populate_some_ids():
+            raise Exception("WE DO NEED TO POP IDS WHY")
+            youtube_playlist_sanitized_name_map = {}
+            playlists = self.youtube_helper.get_my_playlists(part="snippet")
+            for playlist in playlists:
+                if playlist["kind"]=="youtube#playlist":
+                    playlist_sanitized = playlist["snippet"]["title"].strip().lower()
+                    youtube_playlist_sanitized_name_map[playlist_sanitized] = playlist["id"]
+            for playlist in self.settings["playlists"].keys():
+                if not "id" in self.settings["playlists"][playlist]:
+                    playlist_name_sanitized = self.settings["playlists"][playlist]["name"].strip().lower()
+                    if playlist_name_sanitized not in youtube_playlist_sanitized_name_map:
+                        if playlist_name_sanitized=="Watch Later".strip().lower():
+                            self.settings["playlists"][playlist]["id"] = "WL"
+                        else:
+                            raise Exception("Invalid playlist name", self.settings["playlists"][playlist]["name"])
                     else:
-                        raise Exception("Invalid playlist name", self.settings["playlists"][playlist]["name"])
-                else:
-                    self.settings["playlists"][playlist]["id"] = youtube_playlist_sanitized_name_map[playlist_name_sanitized]
-        self.save_settings()
+                        self.settings["playlists"][playlist]["id"] = youtube_playlist_sanitized_name_map[playlist_name_sanitized]
+            self.save_settings()
