@@ -1,3 +1,5 @@
+import copy
+
 from dateutil.parser import parse
 from googleapiclient import errors
 
@@ -74,7 +76,7 @@ class YoutubeApiHelpers():
                 if len(response["items"])==0:
                     break
                 latest_time_in_results = parse(response["items"][-1]["contentDetails"]["videoPublishedAt"])
-                if latest_time_in_results < min_content_details_vid_pub_date_obj:
+                if latest_time_in_results <= min_content_details_vid_pub_date_obj:
                     break
 
         return ret_val
@@ -99,8 +101,6 @@ class YoutubeApiHelpers():
         return chan_info_resp
 
     def get_video_uploads_for_channel(self, channel_id, min_content_details_vid_pub_date, playlist_item_part="contentDetails"):
-        min_content_details_vid_pub_date_obj = parse(min_content_details_vid_pub_date)
-
         channel_info = self._get_full_list(
             fn=self.youtube_service.channels,
             part="contentDetails",
@@ -110,17 +110,11 @@ class YoutubeApiHelpers():
             raise DidNotFindChannelException("Wrong number of results")
         upload_playlist_id = channel_info[0]["contentDetails"]["relatedPlaylists"]["uploads"]
         # print("PL ID=", upload_playlist_id)
-        playlist_items = self.get_playlistitems(
+        return self.get_playlistitems(
             playlist_id=upload_playlist_id,
             part=playlist_item_part,
             min_content_details_vid_pub_date=min_content_details_vid_pub_date
         )
-        playlist_items_after_min_date = []
-        for item in playlist_items:
-            item_publish_time = parse(item["contentDetails"]["videoPublishedAt"])
-            if item_publish_time > min_content_details_vid_pub_date_obj:
-                playlist_items_after_min_date.append(item)
-        return playlist_items_after_min_date
 
     def get_playlist_info(self, playlist_id, part):
         vals = self._get_full_list(
@@ -134,17 +128,12 @@ class YoutubeApiHelpers():
         return vals[0]
 
     def get_playlistitems(self, playlist_id, min_content_details_vid_pub_date, part="contentDetails,id,snippet,status"):
-        try:
-            vals = self._get_full_list(
-                fn=self.youtube_service.playlistItems,
-                part=part,
-                mine=None,
-                playlist_id=playlist_id,
-                min_content_details_vid_pub_date=min_content_details_vid_pub_date
-            )
-        except errors.HttpError:
-            return []
-        return vals
+        return YoutubePlaylist(
+            self,
+            playlist_id=playlist_id,
+            min_content_details_vid_pub_date=min_content_details_vid_pub_date,
+            part=part
+        )
 
     def get_playlists_for_channel(self, channel_id, part="snippet,contentDetails"):
         return self._get_full_list(
@@ -169,15 +158,69 @@ class YoutubeApiHelpers():
             id=",".join(video_ids)
         )
 
-    def insert_video_into_playlist(self, video_id, playlist_id):
+class YoutubePlaylist():
+    youtube_api_helpers = None
+    playlist_id = None
+    min_content_details_vid_pub_date = None
+    part = None
+
+    items = None
+
+    def __init__(
+        self,
+        youtube_api_helpers,
+        playlist_id,
+        min_content_details_vid_pub_date,
+        part="contentDetails,id,snippet,status"
+    ):
+        self.youtube_api_helpers = youtube_api_helpers
+        self.playlist_id = playlist_id
+        self.min_content_details_vid_pub_date = min_content_details_vid_pub_date
+        self.part = part
+
+        response = []
+        try:
+            response = self.youtube_api_helpers._get_full_list(
+                fn=self.youtube_api_helpers.youtube_service.playlistItems,
+                part=part,
+                mine=None,
+                playlist_id=playlist_id,
+                min_content_details_vid_pub_date=min_content_details_vid_pub_date
+            )
+        except errors.HttpError:
+            response = []
+
+        min_content_details_vid_pub_date_obj = parse(self.min_content_details_vid_pub_date)
+
+        self.items = []
+        for item in response:
+            item_publish_time = parse(item["contentDetails"]["videoPublishedAt"])
+            if item_publish_time > min_content_details_vid_pub_date_obj:
+                self.items.append(item)
+
+    def contains_video(self, video_id):
+        for ite in self.items:
+            print("TODO look for video id and compare to", video_id)
+            print(ite)
+            raise Exception("NI")
+        return False
+
+    def insert_video(self, video_id):
+        if self.contains_video(video_id=video_id):
+            print("Video already in list - not calling API")
+            return
         body = {
             'snippet': {
-                'playlistId': playlist_id,
+                'playlistId': self.playlist_id,
                 'resourceId': {
                     'kind': 'youtube#video',
                     'videoId': video_id
                 }
             }
         }
-        request = self.youtube_service.playlistItems().insert(part="snippet", body=body)
+        request = self.youtube_api_helpers.youtube_service.playlistItems().insert(part="snippet", body=body)
         response=request.execute()
+
+    def get_items(self):
+        return copy.deepcopy(self.items)
+

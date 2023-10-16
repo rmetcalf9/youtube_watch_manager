@@ -1,6 +1,7 @@
 import json
 import os
 from watchPolicies import default_watch_policy, get_watch_policy
+from dateutil.parser import parse
 
 class ChannelData:
     data_file_name = None
@@ -43,3 +44,10 @@ class ChannelData:
     def reset_last_pub_dates(self):
         for channel_id in self.data.keys():
             self.data[channel_id]["last_run_last_pub_data"] = self.default_max_seen_pub_date
+
+    def get_max_last_run_last_pub_data(self):
+        ret_val = self.data[list(self.data.keys())[0]]["last_run_last_pub_data"]
+        for channel in self.data.keys():
+            if parse(self.data[channel]["last_run_last_pub_data"]) > parse(ret_val):
+                ret_val = self.data[channel]["last_run_last_pub_data"]
+        return ret_val

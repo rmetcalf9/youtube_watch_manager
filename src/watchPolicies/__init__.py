@@ -72,19 +72,17 @@ def get_policy_initial_context():
         "watch_now": []
     }
 
-def _add_all_vids_to_playlist(list_of_videos, settings, youtube_helper):
+def _add_all_vids_to_playlist(loaded_output_playlists, list_of_videos, settings, youtube_helper):
     if len(list_of_videos)==0:
         return
 
     for vid in list_of_videos:
         try:
-            youtube_helper.insert_video_into_playlist(
-                video_id=vid["id"],
-                playlist_id=settings["id"]
-            )
+            loaded_output_playlists[settings["id"]].insert_video(video_id=vid["id"])
         except errors.HttpError as err:
             if err.status_code == 400:
                 print("WARNING Video is already on playlist", vid)
+                print("err", err)
             else:
                 raise err
 
@@ -92,8 +90,8 @@ def sort_policy_context(policy_context):
     for key in policy_context.keys():
         policy_context[key] = sorted(policy_context[key], key=lambda x: x['publish_date_object'])
 
-def add_all_vids_to_right_playlists(policy_context, playlist_settings, youtube_helper):
+def add_all_vids_to_right_playlists(loaded_output_playlists, policy_context, playlist_settings, youtube_helper):
     for key in policy_context.keys():
         if key not in playlist_settings:
             raise Exception("Missing setting")
-        _add_all_vids_to_playlist(policy_context[key], playlist_settings[key], youtube_helper)
+        _add_all_vids_to_playlist(loaded_output_playlists, policy_context[key], playlist_settings[key], youtube_helper)

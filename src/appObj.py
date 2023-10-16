@@ -55,18 +55,20 @@ class appObj():
         print(
             f"Collecting unwatched videos from {sub['snippet']['title']} - adding all published after {last_run_last_pub_date}")
 
-        vids_in_channel = []
+        playlist = []
         try:
-            vids_in_channel = self.youtube_helper.get_video_uploads_for_channel(
+            playlist = self.youtube_helper.get_video_uploads_for_channel(
                 channel_id=channel_id,
                 min_content_details_vid_pub_date=last_run_last_pub_date,
                 playlist_item_part="contentDetails,snippet"  # id,status not needed
             )
         except YoutubeApiHelpersDidNotFindChannelException:
             print("Channel may be unavailable")
+            return
 
         last_run_last_pub_date_parsed = parse(last_run_last_pub_date)
         batch_size = self.settings["list_vid_from_channel_batch_size"]
+        vids_in_channel = playlist.get_items()
         while vids_in_channel:
             chunk, vids_in_channel = vids_in_channel[:batch_size], vids_in_channel[batch_size:]
             durations = {}
@@ -107,7 +109,19 @@ class appObj():
             )
         self.channel_data.save_changes()
 
+    def load_output_playlist(self):
+        ret_val = {}
+        for playlist_key in self.settings["playlists"].keys():
+            ret_val[self.settings["playlists"][playlist_key]["id"]] = self.youtube_helper.get_playlistitems(
+                playlist_id=self.settings["playlists"][playlist_key]["id"],
+                min_content_details_vid_pub_date=self.channel_data.get_max_last_run_last_pub_data(),
+                part="contentDetails,id,snippet,status"
+            )
+        return ret_val
+
     def run(self):
+        loaded_output_playlists = self.load_output_playlist()
+
         subs = self.youtube_helper.get_subscriptions()
         self.ensure_subs_in_channel_data(subs=subs)
         for sub in subs:
@@ -120,6 +134,7 @@ class appObj():
             sort_policy_context(policy_context)
             self._print_results(policy_context)
             add_all_vids_to_right_playlists(
+                loaded_output_playlists=loaded_output_playlists,
                 policy_context=policy_context,
                 playlist_settings=self.settings["playlists"],
                 youtube_helper=self.youtube_helper
