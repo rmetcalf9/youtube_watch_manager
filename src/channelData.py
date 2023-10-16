@@ -22,6 +22,10 @@ class ChannelData:
         with open(self.data_file_name, "w") as fileHandle:
             fileHandle.write(json.dumps(self.data,indent=2))
 
+    def save_backup(self, backup_file_name):
+        with open(backup_file_name, "w") as fileHandle:
+            fileHandle.write(json.dumps(self.data,indent=2))
+
     def get_data_for_channel(self, channel_name, channel_id, save_changes=True):
         if channel_id not in self.data:
             self.data[channel_id] = {
@@ -51,3 +55,5 @@ class ChannelData:
             if parse(self.data[channel]["last_run_last_pub_data"]) > parse(ret_val):
                 ret_val = self.data[channel]["last_run_last_pub_data"]
         return ret_val
+
+

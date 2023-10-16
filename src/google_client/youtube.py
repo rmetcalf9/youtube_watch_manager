@@ -200,15 +200,14 @@ class YoutubePlaylist():
 
     def contains_video(self, video_id):
         for ite in self.items:
-            print("TODO look for video id and compare to", video_id)
-            print(ite)
-            raise Exception("NI")
+            if ite["snippet"]["resourceId"]["videoId"]==video_id:
+                return True
         return False
 
     def insert_video(self, video_id):
         if self.contains_video(video_id=video_id):
             print("Video already in list - not calling API")
-            return
+            return 0
         body = {
             'snippet': {
                 'playlistId': self.playlist_id,
@@ -221,6 +220,24 @@ class YoutubePlaylist():
         request = self.youtube_api_helpers.youtube_service.playlistItems().insert(part="snippet", body=body)
         response=request.execute()
 
+        #TODO Check response code
+
+        return 1
+
     def get_items(self):
         return copy.deepcopy(self.items)
 
+{'kind': 'youtube#playlistItem', 'etag': 'hpCbazrY7iJCpDkX5qI0pvLTt_c', 'id': 'UEwyRmZHckRUYkVpOWFEaVdOSFVnTUtNZC1UVFlVbVViNC41NkI0NEY2RDEwNTU3Q0M2',
+ 'snippet': {'publishedAt': '2023-10-16T13:27:59Z', 'channelId': 'UCvxXC-IoIPadPYRJ7hZIoVw',
+             'title': "Revealing Multi-Millionaire Property Investor's WORST Deal",
+             'description': "Join Samuel Leeds Property Crash Course for £1: https://www.property-investors.co.uk/?ref=226\n\nRevealing Multi-Millionaire Property Investor's WORST Deal\n\nShare this video: [video link goes here]\n\n🎥 How to build a property portfolio from scratch in 7 DAYS: https://youtu.be/RWEkj1y8XKs\n\n📖 My favourite book: https://amzn.to/39VcYLa\n\n❓ Have a question about property? Join my Property Facebook Group: https://www.facebook.com/groups/778613042238071\n\n🗣️FOLLOW ME ON SOCIAL MEDIA:\nInstagram: https://www.instagram.com/samuelleedsofficial/\nFacebook Group: https://www.facebook.com/groups/778613042238071\nFacebook Page: https://www.facebook.com/OfficialSamuelLeeds/\nTwitter: https://twitter.com/samuel_leeds\nLinkedIn: https://www.linkedin.com/in/samuel-leeds-64660683\n\nFor collaboration enquires please email marketing@samuelleeds.com\n\n🔔 Subscribe for daily content: https://www.youtube.com/SamuelLeeds?sub_confirmation=1\n\n*WARNING* Samuel Leeds will never give out his number in the comments of this YouTube channel. There is currently a channel impersonating Samuel Leeds and commenting on videos with a number to message about investing in cryptocurrencies so please beware of this. \n\n #PropertyInvesting",
+             'thumbnails': {
+                 'default': {
+                     'url': 'https://i.ytimg.com/vi/OyivdWh9pSo/default.jpg', 'width': 120, 'height': 90},
+                      'medium': {'url': 'https://i.ytimg.com/vi/OyivdWh9pSo/mqdefault.jpg', 'width': 320, 'height': 180},
+                 'high': {'url': 'https://i.ytimg.com/vi/OyivdWh9pSo/hqdefault.jpg', 'width': 480, 'height': 360},
+                 'standard': {'url': 'https://i.ytimg.com/vi/OyivdWh9pSo/sddefault.jpg', 'width': 640, 'height': 480},
+                 'maxres': {'url': 'https://i.ytimg.com/vi/OyivdWh9pSo/maxresdefault.jpg', 'width': 1280, 'height': 720}},
+             'channelTitle': 'Robert Metcalf', 'playlistId': 'PL2FfGrDTbEi9aDiWNHUgMKMd-TTYUmUb4', 'position': 0,
+             'resourceId': {'kind': 'youtube#video', 'videoId': 'OyivdWh9pSo'},
+             'videoOwnerChannelTitle': 'Samuel Leeds', 'videoOwnerChannelId': 'UCS6SES6btXx2tVFzWy4oToA'}, 'contentDetails': {'videoId': 'OyivdWh9pSo', 'videoPublishedAt': '2023-10-15T16:00:22Z'}, 'status': {'privacyStatus': 'public'}}

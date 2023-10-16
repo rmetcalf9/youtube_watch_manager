@@ -20,6 +20,7 @@ class appObj():
             self.settings = json.load(fileHandle)
 
         self.channel_data = ChannelData(self.settings["channel_data_file"], self.settings["default_max_seen_pub_date"])
+        self.channel_data.save_backup(self.settings["channel_data_backup_file"])
 
         google_client = GoogleClient( self.settings["google_credentials_file"], self.settings["temporary_token_file"])
         creds = google_client.get_creds()
@@ -114,7 +115,7 @@ class appObj():
         for playlist_key in self.settings["playlists"].keys():
             ret_val[self.settings["playlists"][playlist_key]["id"]] = self.youtube_helper.get_playlistitems(
                 playlist_id=self.settings["playlists"][playlist_key]["id"],
-                min_content_details_vid_pub_date=self.channel_data.get_max_last_run_last_pub_data(),
+                min_content_details_vid_pub_date=self.settings["default_max_seen_pub_date"], # for my playlists get all the vids
                 part="contentDetails,id,snippet,status"
             )
         return ret_val
@@ -125,6 +126,7 @@ class appObj():
         subs = self.youtube_helper.get_subscriptions()
         self.ensure_subs_in_channel_data(subs=subs)
         for sub in subs:
+            total_vids_added = 0
             if sub["snippet"]["resourceId"]["kind"] != "youtube#channel":
                 raise Exception("NI - not a channel")
             channel_id = sub["snippet"]["resourceId"]["channelId"]
@@ -133,7 +135,7 @@ class appObj():
             self._process_subscription(channel_id=channel_id, sub=sub, policy_context=policy_context)
             sort_policy_context(policy_context)
             self._print_results(policy_context)
-            add_all_vids_to_right_playlists(
+            total_vids_added += add_all_vids_to_right_playlists(
                 loaded_output_playlists=loaded_output_playlists,
                 policy_context=policy_context,
                 playlist_settings=self.settings["playlists"],
@@ -144,7 +146,6 @@ class appObj():
             for playlist_key in policy_context.keys():
                 all_vids += policy_context[playlist_key]
 
-            total_vids_added = len(all_vids)
             print("Total vids added=", total_vids_added)
             self.channel_data.save_changes(channel_id=channel_id)
             #raise Exception("Stop after single subscription")
@@ -175,7 +176,6 @@ class appObj():
 
     def _populate_playlist_ids(self):
         if self._we_need_to_populate_some_ids():
-            raise Exception("WE DO NEED TO POP IDS WHY")
             youtube_playlist_sanitized_name_map = {}
             playlists = self.youtube_helper.get_my_playlists(part="snippet")
             for playlist in playlists:

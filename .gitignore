@@ -4,3 +4,4 @@ not_in_git_combined_requirements.txt
 /credentials.json
 /token.json
 /channel_data.json
+/channel_data_backup.json
