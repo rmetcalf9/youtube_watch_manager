@@ -125,6 +125,12 @@ class appObj():
 
         subs = self.youtube_helper.get_subscriptions()
         self.ensure_subs_in_channel_data(subs=subs)
+        removed_subs = self.get_list_of_removed_subs(subs=subs)
+        print("These chanels are no longer subscribed to:")
+        for sub in removed_subs:
+            print(" - ", sub["chanel_name"])
+        print("")
+        summary_total_vids_added = 0
         for sub in subs:
             total_vids_added = 0
             if sub["snippet"]["resourceId"]["kind"] != "youtube#channel":
@@ -147,10 +153,16 @@ class appObj():
                 all_vids += policy_context[playlist_key]
 
             print("Total vids added=", total_vids_added)
+            summary_total_vids_added += total_vids_added
             self.channel_data.save_changes(channel_id=channel_id)
             #raise Exception("Stop after single subscription")
             #if total_vids_added>0:
             #    raise Exception("Stop after single subscription that actually added vids")
+
+        print("----")
+        print(" full summary")
+        print("----")
+        print("summary_total_vids_added", summary_total_vids_added)
 
     def reset_last_pub_dates(self):
         self.channel_data.reset_last_pub_dates()
@@ -193,3 +205,17 @@ class appObj():
                     else:
                         self.settings["playlists"][playlist]["id"] = youtube_playlist_sanitized_name_map[playlist_name_sanitized]
             self.save_settings()
+
+    def get_list_of_removed_subs(self, subs):
+        retVal = []
+
+        subed_titles = []
+        for sub in subs:
+            subed_titles.append(sub["snippet"]["title"])
+
+        for chanel_key in self.channel_data.data.keys():
+           if self.channel_data.data[chanel_key]["chanel_name"] not in subed_titles:
+               retVal.append(self.channel_data.data[chanel_key])
+
+        return retVal
+

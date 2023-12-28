@@ -194,9 +194,11 @@ class YoutubePlaylist():
 
         self.items = []
         for item in response:
-            item_publish_time = parse(item["contentDetails"]["videoPublishedAt"])
-            if item_publish_time > min_content_details_vid_pub_date_obj:
-                self.items.append(item)
+            # Chack published at is in result. Deleted videos have published at removed
+            if "videoPublishedAt" in item["contentDetails"]:
+                item_publish_time = parse(item["contentDetails"]["videoPublishedAt"])
+                if item_publish_time > min_content_details_vid_pub_date_obj:
+                    self.items.append(item)
 
     def contains_video(self, video_id):
         for ite in self.items:
