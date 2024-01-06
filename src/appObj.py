@@ -6,6 +6,8 @@ from channelData import ChannelData
 import isodate
 from watchPolicies import get_policy_initial_context, add_all_vids_to_right_playlists, sort_policy_context
 from functools import reduce
+import datetime
+import pytz
 
 class appObj():
     settings = None
@@ -18,6 +20,11 @@ class appObj():
         self.settings_file_name = settings_file_name
         with open(self.settings_file_name, "r") as fileHandle:
             self.settings = json.load(fileHandle)
+
+        #example default_max_seen_pub_date "2023-10-01T01:00:15Z"
+        default_max_seen_pub_date = self.settings["default_max_seen_pub_date"]
+        if default_max_seen_pub_date.upper().strip() == "TODAY":
+            default_max_seen_pub_date = datetime.datetime.now(pytz.timezone("UTC")).isoformat()
 
         self.channel_data = ChannelData(self.settings["channel_data_file"], self.settings["default_max_seen_pub_date"])
         self.channel_data.save_backup(self.settings["channel_data_backup_file"])
