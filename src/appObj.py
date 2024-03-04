@@ -26,7 +26,7 @@ class appObj():
         if default_max_seen_pub_date.upper().strip() == "TODAY":
             default_max_seen_pub_date = datetime.datetime.now(pytz.timezone("UTC")).isoformat()
 
-        self.channel_data = ChannelData(self.settings["channel_data_file"], self.settings["default_max_seen_pub_date"])
+        self.channel_data = ChannelData(self.settings["channel_data_file"], default_max_seen_pub_date)
         self.channel_data.save_backup(self.settings["channel_data_backup_file"])
 
         google_client = GoogleClient( self.settings["google_credentials_file"], self.settings["temporary_token_file"])
@@ -122,7 +122,7 @@ class appObj():
         for playlist_key in self.settings["playlists"].keys():
             ret_val[self.settings["playlists"][playlist_key]["id"]] = self.youtube_helper.get_playlistitems(
                 playlist_id=self.settings["playlists"][playlist_key]["id"],
-                min_content_details_vid_pub_date=self.settings["default_max_seen_pub_date"], # for my playlists get all the vids
+                min_content_details_vid_pub_date=self.settings["system_playlist_max_seen_pub_date"], # for my playlists get all the vids
                 part="contentDetails,id,snippet,status"
             )
         return ret_val

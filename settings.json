@@ -4,6 +4,7 @@
   "channel_data_file": "./channel_data.json",
   "channel_data_backup_file": "./channel_data_backup.json",
   "default_max_seen_pub_date": "TODAY",
+  "system_playlist_max_seen_pub_date": "2023-10-01T01:00:15Z",
   "playlists": {
     "watch_later": {
       "name": "My Watch Later",
