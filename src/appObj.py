@@ -38,22 +38,25 @@ class appObj():
     def get_video_durations(self, video_ids):
         ret_dat = {}
         video_batch_information = self.youtube_helper.get_video_information(
-            video_ids=video_ids
+            video_ids=video_ids,
+            part="contentDetails,snippet"
         )
         for video_inforamtion in video_batch_information:
             # Saving the duration of each vid in seconds
+            if "duration" not in video_inforamtion["contentDetails"]:
+                if video_inforamtion["snippet"]["liveBroadcastContent"] == "upcoming":
+                    print("Upcomming live broadcast detected - not adding vids form this channel")
+                    return None
             ret_dat[video_inforamtion["id"]] = isodate.parse_duration(video_inforamtion["contentDetails"]["duration"]).total_seconds()
         return ret_dat
 
     def _print_results(self, policy_context):
-        print("-------------------------------")
-        print(" Result actions - add videos as follows")
         for x in policy_context.keys():
-            print(f"{x}")
-            print("---------------------")
-            for vid_info in policy_context[x]:
-                print(vid_info["title"])
-            print("-----\n-----")
+            if len(policy_context[x])==0:
+                print(f"{x}- None")
+            else:
+                for vid_info in policy_context[x]:
+                    print(f"{x}- {vid_info['title']}")
 
     def _process_subscription(self, channel_id, sub, policy_context):
         (last_run_last_pub_date, watch_policy) = self.channel_data.get_data_for_channel(
@@ -85,6 +88,12 @@ class appObj():
                 for vid in chunk:
                     video_ids.append(vid["contentDetails"]["videoId"])
                 durations = self.get_video_durations(video_ids=video_ids)
+                if durations is None:
+                    # returning here skips updating the channel last update
+                    return {
+                        "live_content": True
+                    }
+
 
             for vid in chunk:
                 video_id = vid["contentDetails"]["videoId"]
@@ -133,11 +142,12 @@ class appObj():
         subs = self.youtube_helper.get_subscriptions()
         self.ensure_subs_in_channel_data(subs=subs)
         removed_subs = self.get_list_of_removed_subs(subs=subs)
-        print("These chanels are no longer subscribed to:")
+        print("These channels are no longer subscribed to:")
         for sub in removed_subs:
             print(" - ", sub["chanel_name"])
         print("")
         summary_total_vids_added = 0
+        summary_channels_with_live_content = []
         for sub in subs:
             total_vids_added = 0
             if sub["snippet"]["resourceId"]["kind"] != "youtube#channel":
@@ -145,7 +155,11 @@ class appObj():
             channel_id = sub["snippet"]["resourceId"]["channelId"]
 
             policy_context = get_policy_initial_context()
-            self._process_subscription(channel_id=channel_id, sub=sub, policy_context=policy_context)
+            process_subscription_return = self._process_subscription(channel_id=channel_id, sub=sub, policy_context=policy_context)
+            if process_subscription_return is not None:
+                if "live_content" in process_subscription_return:
+                    if process_subscription_return["live_content"]:
+                        summary_channels_with_live_content.append(sub["snippet"]["title"])
             sort_policy_context(policy_context)
             self._print_results(policy_context)
             total_vids_added += add_all_vids_to_right_playlists(
@@ -153,23 +167,30 @@ class appObj():
                 policy_context=policy_context,
                 playlist_settings=self.settings["playlists"],
                 youtube_helper=self.youtube_helper
-
             )
             all_vids = []
             for playlist_key in policy_context.keys():
                 all_vids += policy_context[playlist_key]
 
             print("Total vids added=", total_vids_added)
+            print("")
             summary_total_vids_added += total_vids_added
             self.channel_data.save_changes(channel_id=channel_id)
             #raise Exception("Stop after single subscription")
             #if total_vids_added>0:
             #    raise Exception("Stop after single subscription that actually added vids")
 
-        print("----")
+        print("--------------")
+        print("--------------")
         print(" full summary")
-        print("----")
+        print("--------------")
+        print("--------------")
         print("summary_total_vids_added", summary_total_vids_added)
+        if len(summary_channels_with_live_content) > 0:
+            print("Channels with live content")
+            for chan in summary_channels_with_live_content:
+                print(chan)
+
 
     def reset_last_pub_dates(self):
         self.channel_data.reset_last_pub_dates()
