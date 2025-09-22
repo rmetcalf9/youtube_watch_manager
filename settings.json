@@ -17,6 +17,10 @@
     "watch_now": {
       "name": "Watch Now",
       "id": "PL2FfGrDTbEi9aDiWNHUgMKMd-TTYUmUb4"
+    },
+    "watch_with_elizabeth": {
+      "name": "Watch with Elizabeth",
+      "id": "PL2FfGrDTbEi_i5omR4oowagYAgSCa39Vj"
     }
   },
   "list_vid_from_channel_batch_size": 50

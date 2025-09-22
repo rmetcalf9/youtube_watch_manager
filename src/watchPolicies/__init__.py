@@ -19,7 +19,7 @@ for x in [
     _watch_policies.append(SaveAllToWatchNow(name="SaveAllToWatchNow" + x["postfix"], require_min_duration=x["require_min_duration"]))
     _watch_policies.append(WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour(name="WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour" + x["postfix"], require_min_duration=x["require_min_duration"]))
 
-default_watch_policy="WatchPolicySaveLessThanHourToWatchLater"
+default_watch_policy="SaveAllToWatchLater"
 
 def get_watch_policy(name):
     for x in _watch_policies:
@@ -31,7 +31,8 @@ def get_policy_initial_context():
     return {
         "watch_later": [],
         "long_watch_later": [],
-        "watch_now": []
+        "watch_now": [],
+        "watch_with_elizabeth": []
     }
 
 def _add_all_vids_to_playlist(loaded_output_playlists, list_of_videos, settings, youtube_helper):
