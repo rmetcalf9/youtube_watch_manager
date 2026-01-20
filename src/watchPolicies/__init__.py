@@ -2,8 +2,9 @@ from googleapiclient import errors
 from .SplitBetweenWatchLaterAndLongWatchLater import SplitBetweenWatchLaterAndLongWatchLater
 from .SaveAllToWatchLater import SaveAllToWatchLater
 from .SaveAllToWatchNow import SaveAllToWatchNow
-from .WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour import WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour
-
+from .WatchPolicySaveLessThanHourToWatchLaterIgnoreMoreThanAnHour import WatchPolicySaveLessThanHourToWatchLaterIgnoreMoreThanAnHour
+from .SaveAllToWatchWithElizabeth import SaveAllToWatchWithElizabeth
+from .SaveMoreThan5MinutesToWatchLater import SaveMoreThan5MinutesToWatchLater
 
 ONE_HOUR_IN_SECONDS = 60 * 60
 THRITY_MINUTES_IN_SECONDS = 60 * 30
@@ -17,7 +18,10 @@ for x in [
     _watch_policies.append(SplitBetweenWatchLaterAndLongWatchLater(divide_point=THRITY_MINUTES_IN_SECONDS, name="WatchPolicySaveLessThan30MinutesToWatchLater" + x["postfix"], require_min_duration=x["require_min_duration"]))
     _watch_policies.append(SaveAllToWatchLater(name="SaveAllToWatchLater" + x["postfix"], require_min_duration=x["require_min_duration"]))
     _watch_policies.append(SaveAllToWatchNow(name="SaveAllToWatchNow" + x["postfix"], require_min_duration=x["require_min_duration"]))
-    _watch_policies.append(WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour(name="WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour" + x["postfix"], require_min_duration=x["require_min_duration"]))
+    _watch_policies.append(WatchPolicySaveLessThanHourToWatchLaterIgnoreMoreThanAnHour(name="WatchPolicySaveLessThanHourToWatchLaterIgnoreMoreThanAnHour" + x["postfix"], require_min_duration=x["require_min_duration"]))
+    _watch_policies.append(SaveAllToWatchWithElizabeth(name="SaveAllToWatchWithElizabeth" + x["postfix"], require_min_duration=x["require_min_duration"]))
+    _watch_policies.append(SaveMoreThan5MinutesToWatchLater(name="SaveMoreThan5MinutesToWatchLater" + x["postfix"], require_min_duration=x["require_min_duration"]))
+
 
 default_watch_policy="SaveAllToWatchLater"
 

@@ -4,7 +4,7 @@ import constants
 ONE_HOUR_IN_SECONDS = 60 * 60
 
 
-class WatchPolictSaveLessThanHourToWatchLaterIgnoreMoreThanAnHour(BaseWatchPolicy):
+class WatchPolicySaveLessThanHourToWatchLaterIgnoreMoreThanAnHour(BaseWatchPolicy):
     require_min_duration=None
     def __init__(self, name, require_min_duration=True):
         self.require_min_duration = require_min_duration
