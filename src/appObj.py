@@ -45,7 +45,11 @@ class appObj():
             # Saving the duration of each vid in seconds
             if "duration" not in video_inforamtion["contentDetails"]:
                 if video_inforamtion["snippet"]["liveBroadcastContent"] == "upcoming":
-                    print("Upcomming live broadcast detected - not adding vids form this channel")
+                    print("Upcoming live broadcast detected - not adding vids form this channel")
+                    return None
+                else:
+                    print("Duration not in vid but it is not upcoming - this vid will be ignored")
+                    print(" - Skipped vid title: ", video_inforamtion["snippet"]["title"])
                     return None
             ret_dat[video_inforamtion["id"]] = isodate.parse_duration(video_inforamtion["contentDetails"]["duration"]).total_seconds()
         return ret_dat
